@@ -1,0 +1,4 @@
+{"id":"validation-01","features":{"workers":1,"load":-2},"target":9}
+{"id":"validation-02","features":{"load":0,"workers":0},"target":10}
+{"id":"validation-03","features":{"load":2,"workers":1},"target":17}
+{"id":"validation-04","features":{"load":4,"workers":0},"target":18}

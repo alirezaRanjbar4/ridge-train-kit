@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="src/Cli/Cli.csproj" />
+  <Project Path="tests/Tests/Tests.csproj" />
+  <Project Path="examples/StandaloneScorer/StandaloneScorer.csproj" />
+</Solution>

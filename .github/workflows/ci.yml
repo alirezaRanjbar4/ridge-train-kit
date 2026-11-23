@@ -1,0 +1,26 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet restore
+      - run: dotnet test -c Release --no-restore
+      - run: dotnet format --verify-no-changes --no-restore
+      - run: dotnet pack src/Cli -c Release --no-restore -o artifacts
+      - run: ./examples/Smoke.ps1 -ExpectedCommit $env:GITHUB_SHA
+        shell: pwsh

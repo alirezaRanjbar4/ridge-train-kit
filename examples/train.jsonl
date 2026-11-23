@@ -1,0 +1,8 @@
+{"id":"train-01","features":{"load":-3,"workers":0},"target":4}
+{"id":"train-02","features":{"load":-3,"workers":1},"target":7}
+{"id":"train-03","features":{"load":-1,"workers":0},"target":8}
+{"id":"train-04","features":{"load":-1,"workers":1},"target":11}
+{"id":"train-05","features":{"load":1,"workers":0},"target":12}
+{"id":"train-06","features":{"load":1,"workers":1},"target":15}
+{"id":"train-07","features":{"load":3,"workers":0},"target":16}
+{"id":"train-08","features":{"load":3,"workers":1},"target":19}
