@@ -266,7 +266,7 @@ public sealed class RegressionTests : IDisposable
     [Fact]
     public void HelpVersionAndMissingArgumentsBehaveWithoutArtifacts()
     {
-        Assert.Equal(0, Run(["--help"]).Code); Assert.Equal("0.1.0", Run(["--version"]).Output.Trim());
+        Assert.Equal(0, Run(["--help"]).Code); Assert.Equal("0.2.0", Run(["--version"]).Output.Trim());
         Assert.Equal(2, Run([]).Code); Assert.Equal(2, Run(["evaluate"]).Code); Assert.Equal(2, Run(["predict"]).Code);
         Assert.Equal(2, Run(["predict", "--model", PathFor("missing"), "--data", Training(), "--output", PathFor("out")]).Code);
     }

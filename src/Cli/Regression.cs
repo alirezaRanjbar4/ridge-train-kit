@@ -5,6 +5,7 @@ namespace RidgeTrainKit;
 public sealed record Model(int SchemaVersion, string Algorithm, double Lambda, string[] FeatureNames,
     double[] Means, double[] Scales, double[] Coefficients, double TargetMean, int TrainingRows, string TrainingSha256);
 public sealed record Metrics(double Mae, double Rmse, double? RSquared);
+public sealed record EvaluationReport(int SchemaVersion, string Algorithm, string ModelSha256, string InputSha256, int Rows, Metrics Metrics, double? MaximumRmse, bool? Passed);
 public sealed record TrainingReport(int SchemaVersion, string Algorithm, double Lambda, string[] FeatureNames,
     string[] ConstantFeatures, int TrainingRows, int ValidationRows, string TrainingSha256, string ValidationSha256,
     string ModelSha256, Metrics Training, Metrics Validation, Metrics MeanBaselineValidation);
@@ -23,6 +24,7 @@ public static class Models
             return (model, JsonData.Hash(snapshot.Bytes));
         }
         catch (JsonException) { throw new InputException("Malformed model JSON; required fields, exact schema and no duplicate/unknown properties are expected."); }
+        catch (InvalidOperationException) { throw new InputException("Malformed model JSON; strings must contain valid Unicode."); }
     }
     public static void Validate(Model model)
     {

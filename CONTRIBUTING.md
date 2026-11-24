@@ -16,4 +16,6 @@ Smoke needs PowerShell 7, available on GitHub-hosted runners. It installs from t
 
 Tests use hand-derived one/two-feature fits and an independently calculated stationarity condition, heldout isolation, exact schemas, saved-model round trips, metrics, provenance, numeric errors and no-overwrite behavior. Do not merely mirror solver lines in tests. Keep tolerances justified. Changes to the model/algorithm contract require explicit compatibility/version decisions and docs.
 
+The source 0.2.0 [holdout evaluator](docs/HOLDOUT.md) adds independently calculated MAE/RMSE/R², strict equality/below/above gate boundaries, schema errors, no-refit and preservation tests. It is not available in the published 0.1.0 package.
+
 The runtime has no external package reference. Test packages are not distributed with the tool. No native ML library, Python, network, model API or paid resource belongs in this scope. Contributions use the [MIT license](LICENSE).

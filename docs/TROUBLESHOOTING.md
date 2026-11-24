@@ -1,10 +1,14 @@
 # Troubleshooting
 
+## Saved-model holdout evaluation
+
+The published v0.1.0 tool has no `evaluate`; use source 0.2.0 until its closing release. Labeled holdout rows must contain exactly the model's case-sensitive named features and a finite target. `--max-rmse` takes a finite nonnegative invariant number; a lower-than-observed threshold returns exit 1 with a report, while invalid input returns 2 and no JSON. R² is null for constant targets and can be negative. Model/data hashes identify bytes, but cannot prove the holdout is independent of training. See [holdout contract](HOLDOUT.md).
+
 ## Existing path or exit 2
 
 Read stderr. Artifact paths must be distinct and fresh; a file or directory already at a destination is refused. Choose new model/report/prediction paths. Do not redirect stdout onto an input or intended dataset output: shell redirection happens before the tool reads input. Failed writes can leave directories or files if cleanup also fails; inspect the destination after an I/O error.
 
-Invalid rows/models, schema mismatch, numeric failure and bad CLI options also return 2 with no partial JSON report. The current tool has no quality-gate exit 1, `evaluate` command or implicit repair/export behavior.
+Invalid rows/models, schema mismatch, numeric failure and bad CLI options also return 2 with no partial JSON report. Published v0.1.0 has no quality-gate exit 1 or `evaluate` command; unreleased source 0.2.0 adds the saved-model gate described above. Neither version implicitly repairs input.
 
 ## Feature schema or ID errors
 
