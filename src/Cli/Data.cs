@@ -93,6 +93,7 @@ public static class DataReader
                 rows.Add(new(id, values, target));
             }
             catch (JsonException) { throw new InputException($"Invalid JSON object, ID, numeric features or target at line {number}; duplicate properties are prohibited."); }
+            catch (InvalidOperationException) { throw new InputException($"Invalid Unicode or JSON field at line {number}."); }
         }
         if (rows.Count == 0) throw new InputException("Dataset is empty.");
         return new(names!, rows.ToArray(), JsonData.Hash(snapshot.Bytes));

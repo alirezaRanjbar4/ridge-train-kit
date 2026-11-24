@@ -8,16 +8,16 @@ public static class Application
 {
     public static int Run(string[] args, TextWriter output, TextWriter error)
     {
-        if (args is ["--version"]) { output.WriteLine("0.1.0"); return 0; }
+        if (args is ["--version"]) { output.WriteLine("0.2.0"); return 0; }
         if (args is ["--help"] or ["-h"])
         {
-            output.WriteLine("ridge-train train --train train.jsonl --validation validation.jsonl --model model.json --report report.json [--lambda 1]\nridge-train predict --model model.json --data input.jsonl --output predictions.jsonl\nCPU numeric ridge regression; training-only population standardization and portable JSON model. Exit 0 success, 2 argument/data/model/numeric/file error. No evaluate command in 0.1.0.");
+            output.WriteLine("ridge-train train --train train.jsonl --validation validation.jsonl --model model.json --report report.json [--lambda 1]\nridge-train predict --model model.json --data input.jsonl --output predictions.jsonl\nridge-train evaluate --model model.json --data holdout.jsonl [--max-rmse 1.5]\nCPU numeric ridge regression; evaluation uses stored model only. Exit 0 success, 1 RMSE gate failure, 2 argument/data/model/numeric/file error.");
             return 0;
         }
         try
         {
-            if (args.Length == 0 || args[0] is not ("train" or "predict")) throw new InputException("Use train or predict; see --help.");
-            var allowed = args[0] == "train" ? new[] { "--train", "--validation", "--model", "--report", "--lambda" } : ["--model", "--data", "--output"];
+            if (args.Length == 0 || args[0] is not ("train" or "predict" or "evaluate")) throw new InputException("Use train, predict or evaluate; see --help.");
+            var allowed = args[0] switch { "train" => new[] { "--train", "--validation", "--model", "--report", "--lambda" }, "predict" => ["--model", "--data", "--output"], _ => ["--model", "--data", "--max-rmse"] };
             var options = new Dictionary<string, string>(StringComparer.Ordinal);
             for (var i = 1; i < args.Length; i++)
             {
@@ -46,6 +46,23 @@ public static class Application
                     Regression.Score(validation, row => Regression.Predict(model, row.Features)), Regression.Score(validation, _ => model.TargetMean));
                 Artifacts.Write((modelPath, bytes), (reportPath, JsonData.Bytes(report)));
                 output.WriteLine(JsonSerializer.Serialize(report, JsonData.Options));
+            }
+            else if (args[0] == "evaluate")
+            {
+                double? maximum = null;
+                if (options.TryGetValue("--max-rmse", out var number))
+                {
+                    if (!double.TryParse(number, NumberStyles.Float, CultureInfo.InvariantCulture, out var value) || !double.IsFinite(value) || value < 0)
+                        throw new InputException("Maximum RMSE must be a finite nonnegative number in invariant notation.");
+                    maximum = value;
+                }
+                var loaded = Models.Read(Need("--model"));
+                var data = DataReader.Read(Need("--data"), requireTarget: true, loaded.Model.FeatureNames);
+                var metrics = Regression.Score(data, row => Regression.Predict(loaded.Model, row.Features));
+                bool? passed = maximum.HasValue ? metrics.Rmse <= maximum.Value : null;
+                var report = new EvaluationReport(1, loaded.Model.Algorithm, loaded.Sha256, data.Sha256, data.Rows.Length, metrics, maximum, passed);
+                output.WriteLine(JsonSerializer.Serialize(report, JsonData.Options));
+                return passed == false ? 1 : 0;
             }
             else
             {

@@ -6,7 +6,7 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>ridge-train</ToolCommandName>
     <PackageId>RidgeTrainKit.Tool</PackageId>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <Authors>alirezaRanjbar4</Authors>
     <Description>Small CPU numeric ridge-regression training and batch prediction with portable JSON models and no runtime package dependency.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

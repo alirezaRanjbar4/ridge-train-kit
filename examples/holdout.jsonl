@@ -1,0 +1,2 @@
+{"id":"holdout-01","features":{"load":5,"workers":0},"target":20}
+{"id":"holdout-02","features":{"load":-4,"workers":1},"target":5}

@@ -6,6 +6,8 @@
 
 This is useful when a simple dense linear baseline and a portable named-feature contract are enough. The JSON stores feature order, fitted means/scales and coefficients; a [standalone C# scorer](examples/StandaloneScorer/Program.cs) reads it without a reference to this tool or an ML package. Existing [ML/numerical tools](docs/RESEARCH.md) cover broader algorithms and precision needs.
 
+Source 0.2.0 adds read-only saved-model holdout evaluation and an optional maximum-RMSE gate. The published v0.1.0 package does not have `evaluate`; build source until the closing release is published.
+
 It trains a traditional numeric model, not a neural network or LLM. It does not encode categories, impute missing values, tune hyperparameters or establish production accuracy. Normal-equation Cholesky fitting has precision limits; use a suitable established solver/framework when those limits matter.
 
 ## Quick start
@@ -16,10 +18,17 @@ With the .NET 10 SDK, from a checkout:
 dotnet test -c Release
 dotnet run --project src/Cli -- train --train examples/train.jsonl --validation examples/validation.jsonl --model artifacts/model.json --report artifacts/training.json --lambda 1
 dotnet run --project src/Cli -- predict --model artifacts/model.json --data examples/predict.jsonl --output artifacts/predictions.jsonl
+dotnet run --project src/Cli -- evaluate --model artifacts/model.json --data examples/holdout.jsonl
 dotnet run --project examples/StandaloneScorer -- artifacts/model.json examples/features.json
 ```
 
 Choose fresh artifact paths for another run. The synthetic training set has eight rows, two features and `target = 10 + 2*load + 3*workers`. The four validation rows are separate. With lambda 1, the first prediction (`load=2`, `workers=1`) is approximately **16.3888888889**; regularization shrinks the slopes, so it need not equal the generating value 17. The independent scorer should agree with the CLI.
+
+## Evaluate a saved model
+
+In source 0.2.0, `evaluate --model model.json --data holdout.jsonl [--max-rmse 1.5]` scores labeled rows using only stored transforms and coefficients. It writes a JSON report to stdout containing actual model/input byte SHA-256, row count, MAE, RMSE and nullable R². With no gate, `maximumRmse` and `passed` are null and exit is 0. With a finite nonnegative threshold, exit is 1 only when RMSE is **strictly greater**; equality passes. Invalid arguments/data/model/numerics/files exit 2 with stderr and no JSON. No model/data/output files are created or changed by evaluation; shell redirection is the caller's responsibility.
+
+Provide a genuinely independent holdout. The model records a training byte hash, not an inventory of training IDs or entities; evaluation cannot detect all overlap or prove temporal/entity independence. R² is null for constant targets and can be negative. The synthetic [holdout example](examples/README.md) illustrates the contract, not generalization quality. See [holdout design](docs/HOLDOUT.md).
 
 These are arithmetic and compatibility examples, not an accuracy benchmark. Inspect both validation metrics and the training-mean baseline before choosing a model. See [examples](examples/README.md) and [troubleshooting](docs/TROUBLESHOOTING.md).
 
